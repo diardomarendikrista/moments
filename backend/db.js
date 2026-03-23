@@ -77,7 +77,21 @@ const initSchema = async () => {
   }
 };
 
+const getBackupData = async () => {
+  const users = await pool.query('SELECT username, password, role, name FROM users;');
+  const albums = await pool.query('SELECT name, description, categories FROM albums;');
+  const media = await pool.query('SELECT * FROM media;');
+
+  return {
+    timestamp: new Date().toISOString(),
+    users: users.rows,
+    albums: albums.rows,
+    media: media.rows
+  };
+};
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
-  initSchema
+  initSchema,
+  getBackupData
 };

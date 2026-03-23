@@ -573,38 +573,31 @@ app.post('/api/media/download-zip', optionalAuthenticate, async (req, res) => {
   }
 });
 
-// AUTO-BACKUP (Cron job every day at 02:00)
-cron.schedule('0 2 * * *', () => {
-  console.log('Running daily backup at 02:00 AM');
-  const backupFileName = `backup_moments_${Date.now()}.sql.gz`;
+// AUTO-BACKUP (Cron job every 12 hours)
+cron.schedule('0 */12 * * *', async () => {
+  console.log('Running scheduled backup (every 12 hours)');
+  const backupFileName = `backup_moments_${Date.now()}.json`;
   const backupPath = path.join(__dirname, backupFileName);
 
-  // Set password via env for pg_dump
-  const env = { ...process.env, PGPASSWORD: process.env.DB_PASSWORD };
+  try {
+    const backupData = await db.getBackupData();
+    fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
 
-  // Create compressed backup
-  const cmd = `pg_dump -U ${process.env.DB_USER} -h ${process.env.DB_HOST} -p ${process.env.DB_PORT} ${process.env.DB_NAME} | gzip > ${backupPath}`;
+    // Upload to Drive
+    console.log('Uploading backup to Google Drive...');
+    await driveService.uploadBackup(backupPath, backupFileName);
+    console.log('Backup uploaded successfully');
 
-  exec(cmd, { env }, async (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Backup exec error: ${error}`);
-      return;
-    }
+    // Run Cleanup (Keep last 14 days)
+    await driveService.cleanupOldBackups(14);
 
-    try {
-      // Upload to Drive
-      console.log('Uploading backup to Google Drive...');
-      await driveService.uploadBackup(backupPath, backupFileName);
-      console.log('Backup uploaded successfully');
-
-      // Clean up local
-      fs.unlink(backupPath, (err) => {
-        if (err) console.error('Failed to clear local backup copy:', err);
-      });
-    } catch (uploadError) {
-      console.error('Failed to upload backup to Drive:', uploadError);
-    }
-  });
+    // Clean up local
+    fs.unlink(backupPath, (err) => {
+      if (err) console.error('Failed to clear local backup copy:', err);
+    });
+  } catch (error) {
+    console.error('Auto-backup failed:', error);
+  }
 });
 
 const PORT = process.env.PORT || 5000;
@@ -615,16 +608,7 @@ app.get('/api/admin/db/export', authenticateToken, async (req, res) => {
   }
 
   try {
-    const users = await db.query('SELECT username, password, role, name FROM users;');
-    const albums = await db.query('SELECT name, description, categories FROM albums;');
-    const media = await db.query('SELECT * FROM media;');
-
-    const backup = {
-      timestamp: new Date().toISOString(),
-      users: users.rows,
-      albums: albums.rows,
-      media: media.rows
-    };
+    const backup = await db.getBackupData();
 
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=moments_backup_${new Date().toISOString().split('T')[0]}.json`);

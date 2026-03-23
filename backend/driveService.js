@@ -136,7 +136,16 @@ const getFileStream = async (fileId) => {
 const uploadBackup = async (filePath, originalName) => {
   const backupFolderId = await resolveFolder(ROOT_FOLDER_ID, 'Backup_moment');
   const fileMetadata = { name: originalName, parents: [backupFolderId] };
-  const media = { mimeType: 'application/gzip', body: fs.createReadStream(filePath) };
+
+  // Detect mimeType from extension
+  let mimeType = 'application/gzip';
+  if (originalName.endsWith('.json')) {
+    mimeType = 'application/json';
+  } else if (originalName.endsWith('.sql')) {
+    mimeType = 'text/plain';
+  }
+
+  const media = { mimeType, body: fs.createReadStream(filePath) };
   const res = await drive.files.create({ resource: fileMetadata, media: media, fields: 'id, name' });
   return res.data;
 };
@@ -157,6 +166,38 @@ const moveFile = async (fileId, newFolderId) => {
   }
 };
 
+const listFiles = async (parentId) => {
+  const query = `'${parentId}' in parents and trashed = false`;
+  const res = await drive.files.list({
+    q: query,
+    fields: 'files(id, name, createdTime)',
+    orderBy: 'createdTime desc'
+  });
+  return res.data.files || [];
+};
+
+const cleanupOldBackups = async (daysLimit) => {
+  try {
+    const backupFolderId = await resolveFolder(ROOT_FOLDER_ID, 'Backup_moment');
+    const files = await listFiles(backupFolderId);
+
+    const now = new Date();
+    const limit = new Date(now.getTime() - (daysLimit * 24 * 60 * 60 * 1000));
+
+    console.log(`--- Checking for backups older than ${daysLimit} days ---`);
+    for (const file of files) {
+      const createdTime = new Date(file.createdTime);
+      if (createdTime < limit) {
+        console.log(`Deleting old backup: ${file.name} (uploaded at ${file.createdTime})`);
+        await deleteFile(file.id);
+      }
+    }
+    console.log('--- Cleanup finished ---');
+  } catch (err) {
+    console.error('Cleanup backups error:', err.message);
+  }
+};
+
 module.exports = {
   drive,
   oauth2Client,
@@ -168,5 +209,6 @@ module.exports = {
   getFileStream,
   uploadBackup,
   moveFile,
-  listSubfolders
+  listSubfolders,
+  cleanupOldBackups
 };
