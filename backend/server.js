@@ -23,8 +23,8 @@ const upload = multer({ dest: 'uploads/' });
 // Initialize schema on startup
 db.initSchema();
 
-// Health Check
-app.get('/api/health', (req, res) => {
+// Health Check (Mendukung /, /api, dan /api/health)
+app.get(['/', '/api', '/api/health'], (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Moments API is running' });
 });
 
@@ -134,7 +134,7 @@ app.post('/api/media/upload', authenticateToken, upload.array('files'), async (r
         (driveRes.imageMediaMetadata?.width || driveRes.videoMediaMetadata?.width || null),
         (driveRes.imageMediaMetadata?.height || driveRes.videoMediaMetadata?.height || null)
       ];
-      
+
       const dbRes = await db.query(insertQuery, values);
       return dbRes.rows[0];
     });
@@ -253,7 +253,7 @@ app.get('/api/albums/:album_name/categories', optionalAuthenticate, async (req, 
   try {
     const { album_name } = req.params;
     const dbRes = await db.query('SELECT categories FROM albums WHERE name = $1', [album_name]);
-    
+
     if (dbRes.rowCount === 0) {
       return res.status(200).json({ data: [] });
     }
@@ -325,7 +325,7 @@ app.put('/api/folders/rename', authenticateToken, async (req, res) => {
       await db.query('UPDATE albums SET name = $1 WHERE name = $2', [newName, oldName]);
     } else if (renameType === 'category') {
       await db.query('UPDATE media SET category = $1 WHERE album_name = $2 AND year = $3 AND category = $4', [newName, albumName, year, oldName]);
-      
+
       // Update JSONB categories: replace matching year/category object
       const updateCatQuery = `
         UPDATE albums 
@@ -370,7 +370,7 @@ app.delete('/api/folders/delete', authenticateToken, async (req, res) => {
       await db.query('DELETE FROM albums WHERE name = $1', [albumName]);
     } else if (deleteType === 'category') {
       await db.query('DELETE FROM media WHERE album_name = $1 AND year = $2 AND category = $3', [albumName, year, category]);
-      
+
       // Remove from JSONB categories
       const removeCatQuery = `
         UPDATE albums 
@@ -381,7 +381,7 @@ app.delete('/api/folders/delete', authenticateToken, async (req, res) => {
         ), '[]'::jsonb)
         WHERE name = $1;
       `;
-      
+
       await db.query(removeCatQuery, [albumName, parseInt(year), category]);
     }
 
@@ -681,7 +681,7 @@ app.post('/api/admin/db/import', authenticateToken, upload.single('file'), async
     }
 
     // Cleanup uploaded file
-    try { fs.unlinkSync(req.file.path); } catch (e) {}
+    try { fs.unlinkSync(req.file.path); } catch (e) { }
 
     console.log('--- GUI Restore Success ---');
     res.status(200).json({ message: 'Database restored successfully' });
