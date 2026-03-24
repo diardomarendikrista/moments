@@ -713,15 +713,39 @@ const GalleryView = () => {
 
           <div className="w-full h-full p-4 sm:p-16 flex items-center justify-center relative">
             {currentItem.mime_type.startsWith("video/") ? (
-              <div className="relative flex items-center justify-center">
+              <div
+                className="relative flex items-center justify-center overflow-hidden rounded-md shadow-2xl bg-black"
+                style={{
+                  aspectRatio:
+                    currentItem.width && currentItem.height
+                      ? `${currentItem.width} / ${currentItem.height}`
+                      : "auto",
+                  width:
+                    currentItem.width && currentItem.height ? "auto" : "100%",
+                  maxHeight: "85vh",
+                  maxWidth: "100%",
+                }}
+              >
+                {/* 1. Blurred Thumbnail Placeholder */}
+                {!lightboxLoaded && currentItem.thumbnail_link && (
+                  <img
+                    src={currentItem.thumbnail_link.replace("=s220", "=s800")}
+                    className="absolute inset-0 w-full h-full object-contain blur-xl scale-110 opacity-50 z-10"
+                    alt=""
+                  />
+                )}
+
+                {/* 2. Loading Overlay */}
                 {!lightboxLoaded && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 animate-pulse z-20">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 animate-pulse z-20 bg-black/20">
                     <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
                     <span className="text-white/50 text-sm font-medium tracking-widest uppercase">
                       Loading Video...
                     </span>
                   </div>
                 )}
+
+                {/* 3. Actual Video */}
                 <video
                   key={`vid-${currentItem.id}`}
                   src={`${API_BASE}/media/${currentItem.id}/stream`}
@@ -729,7 +753,7 @@ const GalleryView = () => {
                   autoPlay
                   onLoadedData={() => setLightboxLoaded(true)}
                   className={cn(
-                    "max-w-full max-h-[85vh] rounded-md shadow-2xl bg-black transition-opacity duration-300",
+                    "relative z-30 max-w-full max-h-[85vh] transition-opacity duration-500",
                     lightboxLoaded ? "opacity-100" : "opacity-0",
                   )}
                 />
