@@ -17,7 +17,40 @@ const PrivateRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
+  // Redirect non-admins to home where they will be further redirected to their album
   return user?.role === "admin" ? children : <Navigate to="/" />;
+};
+
+const HomeRedirect = () => {
+  const { user } = useAuth();
+  const storedAlbum = localStorage.getItem("moments_home_album");
+
+  if (user?.role === "admin") {
+    return <Home />;
+  }
+
+  if (storedAlbum) {
+    return (
+      <Navigate
+        to={`/${storedAlbum}`}
+        replace
+      />
+    );
+  }
+
+  // Fallback if no album stored: just show dummy or first album if we had the list.
+  // For now, let's just let it be or redirect to a known default if applicable.
+  // But usually, they arrive via a shared link which stores the album.
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+        Welcome to Moments
+      </h2>
+      <p className="text-gray-600 dark:text-gray-400">
+        Please use a direct album link to view photos.
+      </p>
+    </div>
+  );
 };
 
 function AppContent() {
@@ -51,9 +84,7 @@ function AppContent() {
             path="/"
             element={
               <PrivateRoute>
-                <AdminRoute>
-                  <Home />
-                </AdminRoute>
+                <HomeRedirect />
               </PrivateRoute>
             }
           />

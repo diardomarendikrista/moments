@@ -39,6 +39,9 @@ const AlbumView = () => {
 
   useEffect(() => {
     fetchAlbumContent();
+    if (album) {
+      localStorage.setItem("moments_home_album", album);
+    }
   }, [album]);
 
   const fetchAlbumContent = async () => {
@@ -90,24 +93,25 @@ const AlbumView = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {isAuthenticated && (user?.role === "admin" || user?.role === "editor") && (
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsAddFolderOpen(true)}
-                className="px-6 py-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-bold rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2 cursor-pointer"
-              >
-                <FolderPlus className="w-5 h-5" />
-                <span className="hidden sm:inline">Add Folder</span>
-              </button>
-              <button
-                onClick={() => setIsUploadOpen(true)}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition flex items-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-5 h-5" />
-                <span className="hidden sm:inline">Upload Photos</span>
-              </button>
-            </div>
-          )}
+          {isAuthenticated &&
+            (user?.role === "admin" || user?.role === "editor") && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsAddFolderOpen(true)}
+                  className="px-6 py-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-bold rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <FolderPlus className="w-5 h-5" />
+                  <span className="hidden sm:inline">Add Folder</span>
+                </button>
+                <button
+                  onClick={() => setIsUploadOpen(true)}
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="hidden sm:inline">Upload Photos</span>
+                </button>
+              </div>
+            )}
         </div>
       </div>
 

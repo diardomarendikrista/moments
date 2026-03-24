@@ -1,8 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Ghost, Home, ChevronRight } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const NotFound = () => {
+  const { user } = useAuth();
+  const storedAlbum = localStorage.getItem("moments_home_album");
+  const homeLink =
+    user?.role === "admin" ? "/" : storedAlbum ? `/${storedAlbum}` : "/";
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="text-center">
@@ -24,7 +30,7 @@ const NotFound = () => {
         </p>
 
         <Link
-          to="/"
+          to={homeLink}
           className="inline-flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-xl shadow-indigo-500/20 transition-all hover:scale-105 font-black uppercase tracking-widest cursor-pointer"
         >
           <Home className="w-5 h-5" />

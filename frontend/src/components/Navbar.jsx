@@ -11,8 +11,12 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
   let logoLink = "/";
   if (user?.role !== "admin") {
     const pathParts = location.pathname.split("/").filter(Boolean);
+    const storedAlbum = localStorage.getItem("moments_home_album");
+
     if (pathParts.length > 0 && pathParts[0] !== "login") {
       logoLink = `/${pathParts[0]}`;
+    } else if (storedAlbum) {
+      logoLink = `/${storedAlbum}`;
     }
   }
 
