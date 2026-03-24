@@ -240,6 +240,7 @@ const GalleryView = () => {
       const index = media.findIndex((m) => m.id === imgId);
       if (index !== -1) {
         setPreviewIndex(index);
+        setLightboxLoaded(false);
       } else {
         // Fallback or cleanup if ID not found
         setPreviewIndex(null);
@@ -680,53 +681,54 @@ const GalleryView = () => {
           </button>
 
           <div className="w-full h-full p-4 sm:p-16 flex items-center justify-center relative">
-            {/* Thumbnail Placeholder for Images */}
-            {!currentItem.mime_type.startsWith("video/") && (
-              <img
-                key={`thumb-${currentItem.id}`}
-                src={
-                  currentItem.thumbnail_link
-                    ? currentItem.thumbnail_link.replace("=s220", "=s800")
-                    : `${API_BASE}/media/${currentItem.id}/stream`
-                }
-                className={cn(
-                  "absolute max-w-full max-h-[85vh] object-contain rounded-md blur-md transition-opacity duration-700",
-                  lightboxLoaded ? "opacity-0" : "opacity-100",
-                )}
-                alt=""
-              />
-            )}
-
-            {/* Global Loader - primarily for Videos */}
-            {!lightboxLoaded && currentItem.mime_type.startsWith("video/") && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 animate-pulse">
-                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-                <span className="text-white/50 text-sm font-medium tracking-widest uppercase">
-                  Loading Memory...
-                </span>
-              </div>
-            )}
-
             {currentItem.mime_type.startsWith("video/") ? (
-              <video
-                key={`vid-${currentItem.id}`}
-                src={`${API_BASE}/media/${currentItem.id}/stream`}
-                controls
-                autoPlay
-                onLoadedData={() => setLightboxLoaded(true)}
-                className={cn(
-                  "max-w-full max-h-[85vh] rounded-md shadow-2xl bg-black transition-opacity duration-300",
-                  lightboxLoaded ? "opacity-100" : "opacity-0",
+              <div className="relative flex items-center justify-center">
+                {!lightboxLoaded && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 animate-pulse z-20">
+                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                    <span className="text-white/50 text-sm font-medium tracking-widest uppercase">
+                      Loading Video...
+                    </span>
+                  </div>
                 )}
-              />
+                <video
+                  key={`vid-${currentItem.id}`}
+                  src={`${API_BASE}/media/${currentItem.id}/stream`}
+                  controls
+                  autoPlay
+                  onLoadedData={() => setLightboxLoaded(true)}
+                  className={cn(
+                    "max-w-full max-h-[85vh] rounded-md shadow-2xl bg-black transition-opacity duration-300",
+                    lightboxLoaded ? "opacity-100" : "opacity-0",
+                  )}
+                />
+              </div>
             ) : (
-              <img
-                key={`img-${currentItem.id}`}
-                src={`${API_BASE}/media/${currentItem.id}/stream`}
-                onLoad={() => setLightboxLoaded(true)}
-                className="relative max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl"
-                alt=""
-              />
+              /* Progressive Image Layout */
+              <div className="relative flex items-center justify-center max-w-full max-h-[85vh]">
+                {/* 1. High-res Stream (Always visible, dictates size) */}
+                <img
+                  key={`img-${currentItem.id}`}
+                  src={`${API_BASE}/media/${currentItem.id}/stream`}
+                  onLoad={() => setLightboxLoaded(true)}
+                  className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl relative z-20"
+                  alt=""
+                />
+
+                {/* 2. Low-res Thumbnail (Behind the high-res, blurred) */}
+                {!lightboxLoaded && (
+                  <img
+                    key={`thumb-${currentItem.id}`}
+                    src={
+                      currentItem.thumbnail_link
+                        ? currentItem.thumbnail_link.replace("=s220", "=s800")
+                        : `${API_BASE}/media/${currentItem.id}/stream`
+                    }
+                    className="absolute inset-0 w-full h-full object-contain rounded-md blur-md opacity-60 z-10"
+                    alt=""
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>
