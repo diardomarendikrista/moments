@@ -683,6 +683,7 @@ const GalleryView = () => {
             {/* Thumbnail Placeholder for Images */}
             {!currentItem.mime_type.startsWith("video/") && (
               <img
+                key={`thumb-${currentItem.id}`}
                 src={
                   currentItem.thumbnail_link
                     ? currentItem.thumbnail_link.replace("=s220", "=s800")
@@ -708,6 +709,7 @@ const GalleryView = () => {
 
             {currentItem.mime_type.startsWith("video/") ? (
               <video
+                key={`vid-${currentItem.id}`}
                 src={`${API_BASE}/media/${currentItem.id}/stream`}
                 controls
                 autoPlay
@@ -719,6 +721,7 @@ const GalleryView = () => {
               />
             ) : (
               <img
+                key={`img-${currentItem.id}`}
                 src={`${API_BASE}/media/${currentItem.id}/stream`}
                 onLoad={() => setLightboxLoaded(true)}
                 className="relative max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl"
