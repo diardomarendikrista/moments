@@ -1,9 +1,11 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const isLocal = process.env.DB_MODE === 'local';
+
 const pool = new Pool({
   user: process.env.DB_USER,
-  host: process.env.DB_HOST,
+  host: isLocal ? process.env.DB_HOST : process.env.DB_HOST_REMOTE,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
