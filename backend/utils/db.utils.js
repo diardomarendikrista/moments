@@ -52,8 +52,8 @@ const initSchema = async () => {
     -- Seed default users if they don't exist
     INSERT INTO "users" (username, password, role, name)
     VALUES 
-      ('admin', 'admin123', 'admin', 'Diardo'),
-      ('editor', 'editor123', 'editor', 'Daya Virtual')
+      ('admin', 'admin123', 'admin', 'Admin'),
+      ('editor', 'editor123', 'editor', 'Editor')
     ON CONFLICT (username) DO UPDATE SET name = EXCLUDED.name;
   `;
   try {
