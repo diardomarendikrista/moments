@@ -108,7 +108,7 @@ npm test
 
 ## 🚛 Panduan Migrasi (Pindah Server)
 
-Jika Anda memindahkan aplikasi ini ke server baru, ikuti langkah-langkah berikut:
+Jika Anda memindahkan aplikasi ini ke server baru, ikuti langkah langkah berikut:
 
 1. **Persiapan Database**: Di server PostgreSQL yang baru, buat database kosong terlebih dahulu:
    ```bash
@@ -120,6 +120,120 @@ Jika Anda memindahkan aplikasi ini ke server baru, ikuti langkah-langkah berikut
    # Ganti dengan nama file backup asli Anda
    npm run restore moments_backup_xxxx.json
    ```
+
+---
+
+## 📡 Dokumentasi API (Endpoint Reference)
+
+Berikut adalah ringkasan API dengan contoh request dan response.
+
+### 1. Authentication
+
+#### **POST /api/auth/login**
+
+Mendapatkan token akses.
+
+- **Body**:
+  ```json
+  { "username": "admin", "password": "yourpassword" }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "token": "eyJhbGciOi...",
+    "user": {
+      "id": 1,
+      "username": "admin",
+      "role": "admin",
+      "name": "Admin User"
+    }
+  }
+  ```
+
+---
+
+### 2. Media Management
+
+#### **GET /api/media**
+
+Mengambil daftar media dengan filter.
+
+- **Query Params**: `album`, `year`, `category`.
+- **Response (200 OK)**:
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "file_name": "photo.jpg",
+        "thumbnail_link": "http...",
+        "created_at": "2024-03-24"
+      }
+    ]
+  }
+  ```
+
+#### **POST /api/media/upload**
+
+Upload media baru (Multipart/form-data).
+
+- **Body**: `album_name`, `year`, `category` (string), `files` (file binary).
+- **Response (200 OK)**:
+  ```json
+  { "message": "Upload successful", "data": [ ... ] }
+  ```
+
+#### **POST /api/media/bulk-delete**
+
+Menghapus banyak media.
+
+- **Body**:
+  ```json
+  { "ids": [1, 2, 3] }
+  ```
+
+---
+
+### 3. Albums & Folders
+
+#### **GET /api/albums/all**
+
+Daftar semua album dan kategorinya.
+
+- **Response (200 OK)**:
+  ```json
+  {
+    "data": [
+      {
+        "name": "Wedding",
+        "categories": [{ "year": 2023, "category": "General" }]
+      }
+    ]
+  }
+  ```
+
+#### **POST /api/folders/add**
+
+Membuat folder baru.
+
+- **Body**:
+  ```json
+  { "albumName": "Wedding", "year": "2024", "category": "Events" }
+  ```
+- **Response (200 OK)**:
+  ```json
+  { "message": "Folder added successfully" }
+  ```
+
+---
+
+### 4. Admin (Database Backup)
+
+#### **GET /api/admin/db/export**
+
+Download database dalam format JSON.
+
+- **Response**: File `moments_backup_YYYY-MM-DD.json`.
 
 ---
 
