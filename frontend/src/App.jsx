@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import AlbumView from "./pages/AlbumView";
 import GalleryView from "./pages/GalleryView";
 import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
@@ -42,7 +43,10 @@ function AppContent() {
           toggleDarkMode={() => setDarkMode(!darkMode)}
         />
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
           <Route
             path="/"
             element={
@@ -53,8 +57,18 @@ function AppContent() {
               </PrivateRoute>
             }
           />
-          <Route path="/:album" element={<AlbumView />} />
-          <Route path="/:album/:year/:category" element={<GalleryView />} />
+          <Route
+            path="/:album"
+            element={<AlbumView />}
+          />
+          <Route
+            path="/:album/:year/:category"
+            element={<GalleryView />}
+          />
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
         </Routes>
       </div>
     </BrowserRouter>

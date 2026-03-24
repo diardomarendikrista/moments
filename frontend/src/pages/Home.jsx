@@ -19,6 +19,8 @@ import { cn } from "../lib/utils";
 import { useAuth } from "../context/AuthContext";
 import FolderActionModal from "../components/FolderActionModal";
 import UploadModal from "../components/UploadModal";
+import AddFolderModal from "../components/AddFolderModal";
+import { FolderPlus } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -36,6 +38,7 @@ const Home = () => {
   });
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isAddFolderOpen, setIsAddFolderOpen] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
 
   useEffect(() => {
@@ -148,15 +151,6 @@ const Home = () => {
           (user?.role === "admin" || user?.role === "editor") && (
             <div className="flex flex-wrap items-center gap-3">
               {user?.role === "admin" && (
-                <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 cursor-default">
-                  <Settings className="w-5 h-5" />
-                  <span className="font-bold text-sm uppercase tracking-wider">
-                    Admin Mode
-                  </span>
-                </div>
-              )}
-
-              {user?.role === "admin" && (
                 <div className="flex gap-2">
                   <button
                     onClick={handleBackup}
@@ -183,6 +177,14 @@ const Home = () => {
                   </label>
                 </div>
               )}
+
+              <button
+                onClick={() => setIsAddFolderOpen(true)}
+                className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer font-bold text-sm sm:text-base"
+              >
+                <FolderPlus className="w-5 h-5" />
+                <span>Add Folder</span>
+              </button>
 
               <button
                 onClick={() => setIsUploadOpen(true)}
@@ -274,6 +276,12 @@ const Home = () => {
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
+        onSuccess={fetchAlbums}
+      />
+
+      <AddFolderModal
+        isOpen={isAddFolderOpen}
+        onClose={() => setIsAddFolderOpen(false)}
         onSuccess={fetchAlbums}
       />
     </div>
