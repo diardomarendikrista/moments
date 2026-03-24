@@ -196,14 +196,16 @@ const GalleryView = () => {
   };
 
   const nextItem = () => {
-    const nextIdx = (previewIndex + 1) % media.length;
+    if (previewIndex >= media.length - 1) return;
+    const nextIdx = previewIndex + 1;
     const nextId = media[nextIdx].id;
     // Use navigate with replace: true to avoid history buildup
     navigate(`?img=${nextId}`, { replace: true });
   };
 
   const prevItem = () => {
-    const prevIdx = (previewIndex - 1 + media.length) % media.length;
+    if (previewIndex <= 0) return;
+    const prevIdx = previewIndex - 1;
     const prevId = media[prevIdx].id;
     // Use navigate with replace: true to avoid history buildup
     navigate(`?img=${prevId}`, { replace: true });
@@ -232,6 +234,25 @@ const GalleryView = () => {
       prevItem();
     }
   };
+
+  // Handle Body Scroll Lock
+  useEffect(() => {
+    const isModalOpen =
+      previewIndex !== null ||
+      isUploadOpen ||
+      !!editItem ||
+      confirmDeleteModal.isOpen;
+
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [previewIndex, isUploadOpen, editItem, confirmDeleteModal.isOpen]);
 
   // Sync previewIndex with URL parameter
   useEffect(() => {
@@ -668,14 +689,24 @@ const GalleryView = () => {
 
           <button
             onClick={prevItem}
-            className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-3 rounded-full hover:bg-white/10 transition-colors z-[110]"
+            className={cn(
+              "absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all z-[110]",
+              previewIndex === 0
+                ? "opacity-0 pointer-events-none"
+                : "opacity-100",
+            )}
           >
             <ChevronLeft className="w-8 h-8" />
           </button>
 
           <button
             onClick={nextItem}
-            className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-3 rounded-full hover:bg-white/10 transition-colors z-[110]"
+            className={cn(
+              "absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all z-[110]",
+              previewIndex === media.length - 1
+                ? "opacity-0 pointer-events-none"
+                : "opacity-100",
+            )}
           >
             <ChevronRight className="w-8 h-8" />
           </button>
