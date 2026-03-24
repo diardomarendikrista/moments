@@ -1,4 +1,8 @@
-const db = require('./db');
+const userRepository = require('./repositories/user.repository');
+const albumRepository = require('./repositories/album.repository');
+const mediaRepository = require('./repositories/media.repository');
+const dbUtils = require('./utils/db.utils');
+const db = require('./config/db.config');
 const fs = require('fs');
 const path = require('path');
 
@@ -17,21 +21,20 @@ const restoreData = async () => {
 
     // 0. Ensure Schema exists
     console.log('Initializing schema...');
-    await db.initSchema();
+    await dbUtils.initSchema();
 
     // 1. Restore Users
     console.log('Restoring Users...');
     for (const u of data.users) {
-      await db.query(
-        'INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4) ON CONFLICT (username) DO UPDATE SET password=$2, role=$3, name=$4',
-        [u.username, u.password, u.role, u.name]
-      );
+      await userRepository.upsertUser(u);
     }
 
     // 2. Restore Albums
     console.log('Restoring Albums...');
+    const pool = require('./config/db.config');
     for (const a of data.albums) {
-      await db.query(
+      // Direct query for full album restoration (description field)
+      await pool.query(
         'INSERT INTO albums (name, description, categories) VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE SET description=$2, categories=$3',
         [a.name, a.description, JSON.stringify(a.categories)]
       );
@@ -39,10 +42,8 @@ const restoreData = async () => {
 
     // 3. Restore Media
     console.log('Restoring Media (this might take a while)...');
-    // Clear existing media to avoid duplicates if ID is random? 
-    // Usually, we want clean restore. Let's use INSERT ON CONFLICT drive_file_id.
     for (const m of data.media) {
-      const { id, created_at, ...mdata } = m; // Skip auto-gen fields if they exist
+      const { id, created_at, ...mdata } = m;
       const columns = Object.keys(mdata).join(', ');
       const placeholders = Object.keys(mdata).map((_, i) => `$${i + 1}`).join(', ');
       const values = Object.values(mdata);

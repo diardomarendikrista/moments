@@ -1,19 +1,4 @@
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const isLocal = process.env.DB_MODE === 'local';
-
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: isLocal ? process.env.DB_HOST : process.env.DB_HOST_REMOTE,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
-
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-});
+const db = require('../config/db.config');
 
 const initSchema = async () => {
   const queryText = `
@@ -72,7 +57,7 @@ const initSchema = async () => {
     ON CONFLICT (username) DO UPDATE SET name = EXCLUDED.name;
   `;
   try {
-    await pool.query(queryText);
+    await db.query(queryText);
     console.log('Database schema initialized');
   } catch (err) {
     console.error('Error initializing schema:', err);
@@ -80,9 +65,9 @@ const initSchema = async () => {
 };
 
 const getBackupData = async () => {
-  const users = await pool.query('SELECT username, password, role, name FROM users;');
-  const albums = await pool.query('SELECT name, description, categories FROM albums;');
-  const media = await pool.query('SELECT * FROM media;');
+  const users = await db.query('SELECT username, password, role, name FROM users;');
+  const albums = await db.query('SELECT name, description, categories FROM albums;');
+  const media = await db.query('SELECT * FROM media;');
 
   return {
     timestamp: new Date().toISOString(),
@@ -93,7 +78,6 @@ const getBackupData = async () => {
 };
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
   initSchema,
   getBackupData
 };
