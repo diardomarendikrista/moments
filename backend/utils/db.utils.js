@@ -16,11 +16,13 @@ const initSchema = async () => {
       "download_link_hd" TEXT,
       "width" INT,
       "height" INT,
+      "size_bytes" BIGINT,
       "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
     ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "width" INT;
     ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "height" INT;
+    ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "size_bytes" BIGINT;
 
     CREATE TABLE IF NOT EXISTS "albums" (
       "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),

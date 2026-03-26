@@ -4,6 +4,7 @@ const driveService = require('./driveService');
 const fs = require('fs');
 const archiver = require('archiver');
 const { Readable } = require('stream');
+const { compressImage } = require('../utils/image.utils');
 
 const uploadMedia = async (files, album_name, year, category) => {
   if (!files || files.length === 0) {
@@ -13,8 +14,11 @@ const uploadMedia = async (files, album_name, year, category) => {
   const targetFolderId = await driveService.getTargetFolderId(album_name, year, category);
 
   const uploadPromises = files.map(async (file) => {
+    // Compress image if it's an image file
+    const compressedPath = await compressImage(file.path, file.mimetype);
+
     const driveRes = await driveService.uploadFile(
-      file.path,
+      compressedPath,
       file.mimetype,
       file.originalname,
       targetFolderId
@@ -31,7 +35,8 @@ const uploadMedia = async (files, album_name, year, category) => {
       web_view_link: driveRes.webViewLink,
       download_link_hd: driveRes.webContentLink,
       width: (driveRes.imageMediaMetadata?.width || driveRes.videoMediaMetadata?.width || null),
-      height: (driveRes.imageMediaMetadata?.height || driveRes.videoMediaMetadata?.height || null)
+      height: (driveRes.imageMediaMetadata?.height || driveRes.videoMediaMetadata?.height || null),
+      size_bytes: parseInt(driveRes.size) || null
     };
 
     const media = await mediaRepository.createmedia(mediaData);

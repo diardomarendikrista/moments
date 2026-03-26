@@ -623,6 +623,11 @@ const GalleryView = () => {
               <span className="text-[10px] sm:text-sm text-gray-400 hidden min-[400px]:inline sm:inline">
                 ({new Date(currentItem.created_at).toLocaleDateString()})
               </span>
+              {currentItem.size_bytes && (
+                <span className="text-[10px] sm:text-sm text-indigo-400 font-bold">
+                  {(currentItem.size_bytes / (1024 * 1024)).toFixed(2)} MB
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-4">

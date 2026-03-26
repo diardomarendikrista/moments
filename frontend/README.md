@@ -8,6 +8,7 @@ Frontend untuk aplikasi Moments, dibangun menggunakan React 19, Vite, dan Tailwi
 - **Advanced Lightbox**: Preview gambar resolusi penuh dan pemutar video terintegrasi.
 - **Bulk Operations**: Download ZIP, download file sekuensial, dan penghapusan massal.
 - **Responsive Design**: Antarmuka yang dioptimalkan untuk perangkat mobile maupun desktop.
+- **Smart Size Indicator**: Menampilkan ukuran file asli vs setelah kompresi di server.
 - **Dark Mode Support**: Terintegrasi dengan tema sistem atau pilihan pengguna.
 
 ## 🛠️ Persyaratan

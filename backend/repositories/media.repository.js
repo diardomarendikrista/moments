@@ -2,8 +2,8 @@ const db = require('../config/db.config');
 
 const createmedia = async (mediaData) => {
   const query = `
-    INSERT INTO media (drive_file_id, album_name, year, category, file_name, mime_type, thumbnail_link, web_view_link, download_link_hd, width, height)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    INSERT INTO media (drive_file_id, album_name, year, category, file_name, mime_type, thumbnail_link, web_view_link, download_link_hd, width, height, size_bytes)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *;
   `;
   const values = [
@@ -17,7 +17,8 @@ const createmedia = async (mediaData) => {
     mediaData.web_view_link,
     mediaData.download_link_hd,
     mediaData.width,
-    mediaData.height
+    mediaData.height,
+    mediaData.size_bytes
   ];
   const res = await db.query(query, values);
   return res.rows[0];

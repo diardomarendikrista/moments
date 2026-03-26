@@ -7,6 +7,7 @@ Backend untuk aplikasi Moments yang menggunakan arsitektur **Controller-Service-
 - **Modular CSR Architecture**: Pemisahan logika yang jelas antara handler (Controller), logika bisnis (Service), dan akses data (Repository).
 - **Google Drive Integration**: Upload, download, streaming, dan manajemen folder langsung di Drive.
 - **Automated Backup**: Backup database otomatis ke Google Drive setiap 12 jam.
+- **HD Image Compression**: Kompresi gambar otomatis ala WhatsApp (HD quality) menggunakan library `sharp` dengan fitur anti-rotate (EXIF orientation).
 - **Integration Testing**: Suite pengujian menggunakan Jest dan Supertest.
 - **JWT Authentication**: Keamanan akses menggunakan JSON Web Token.
 

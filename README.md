@@ -1,6 +1,6 @@
-# Moments Project (v1.1.0)
+# Moments Project (v1.2.0)
 
-Aplikasi manajemen media pribadi yang terintegrasi dengan Google Drive dan PostgreSQL. Proyek ini sekarang menggunakan arsitektur modular **Controller-Service-Repository (CSR)**.
+Aplikasi manajemen media pribadi yang terintegrasi dengan Google Drive dan PostgreSQL. Proyek ini sekarang menggunakan arsitektur modular **Controller-Service-Repository (CSR)** dan mendukung **HD Image Compression** otomatis.
 
 ## 📁 Struktur Proyek
 

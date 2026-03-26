@@ -100,7 +100,7 @@ const uploadFile = async (filePath, mimeType, originalName, folderId) => {
   const res = await drive.files.create({
     resource: fileMetadata,
     media: media,
-    fields: 'id, name, thumbnailLink, webViewLink, webContentLink, imageMediaMetadata, videoMediaMetadata',
+    fields: 'id, name, size, thumbnailLink, webViewLink, webContentLink, imageMediaMetadata, videoMediaMetadata',
   });
 
   try {
